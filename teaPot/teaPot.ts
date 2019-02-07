@@ -1,3 +1,100 @@
+class Water {
+	private readonly spesificHead: number = 4200; //удельная теплоемкость воды при нормальном давлении (Дж)
+	public readonly boildTemp: number = 100; //температура кипения воды (C)
+	private intervalForBoiling: number;
+	private intervalForCooling: number;
+	private intervalForHeating: number;
+	constructor(private volume: number, private temperature: number, private outerTemp: number) {};
+
+	public boild(secForBoild: number, growSpeed: number, callback: Function): void {
+		console.log('Water is heating up');
+		let seconds = 0;
+		this.intervalForBoiling = setInterval(() => {
+			if(seconds >= secForBoild) {
+				clearInterval(this.intervalForBoiling);
+				console.log('Water is boiled');
+				callback();
+				return;
+			}
+			seconds++;
+			this.temperature += growSpeed;
+			console.log('Water temperature: ', this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс нагревания
+		}, 300);
+	}
+
+	public coolDown(): void {
+		let speed = 3;
+		console.log('Start to cool down');
+		if(this.intervalForCooling) {
+			clearInterval(this.intervalForCooling);
+		}
+		this.intervalForCooling = setInterval(() => {
+			if(this.temperature <= this.outerTemp) {
+				clearInterval(this.intervalForCooling);
+				return;
+			}
+			this.temperature -= speed;
+			console.log('Water temperature: ', this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс остывания
+		}, 600);
+	}
+
+	public heatUp(toTemp: number): void {
+		console.log('Heating up');
+		if(this.intervalForHeating) {
+			clearInterval(this.intervalForHeating);
+		}
+		this.intervalForHeating = setInterval(() => {
+			if(this.temperature === toTemp) {
+				clearInterval(this.intervalForHeating);
+			}
+			this.temperature++;
+			console.log('Water temperature: ', this.temperature); //закоментировать если не хотим показывать процесс нагревания
+		}, 600)
+	}
+
+	public addNewWater(newWater: Water): void {
+		this.volume += newWater.volume;
+		this.temperature = Math.round((this.temperature * this.volume + newWater.temperature * newWater.volume) / (this.volume + newWater.volume));
+		if(this.temperature > this.outerTemp && !this.intervalForBoiling) {
+			this.coolDown();
+		} else if(this.temperature < this.outerTemp) {
+			this.heatUp(this.outerTemp);
+		}
+	}
+
+	public changeOuterTemp(to: number): void {
+		this.outerTemp = to;
+	}
+
+	public decreaseVolume(volume: number): void {
+			this.volume -= volume;
+	}
+
+	public getTemperature(): number {
+		return this.temperature;
+	}
+
+	public getVolume(): number {
+		return this.volume;
+	}
+
+	public getspesificHead(): number {
+		return this.spesificHead;
+	}
+
+	public getOuterTemp(): number {
+		return this.outerTemp;
+	}
+
+	public getBoilingInterval(): number {
+		return this.intervalForBoiling;
+	}
+
+	public getCoolingInterval(): number {
+		return this.intervalForCooling;
+	}
+}
+
 class TeaPot {
 	private water: Water = new Water(0, 25, 25);
 	private isTurned: boolean = false;
@@ -66,103 +163,6 @@ class TeaPot {
 		}
 		throw new Error('Not enought empty space, you can add not more then ' + <number>(this.volume - this.water.getVolume()) + ' milliliters');
 		return false;
-	}
-}
-
-class Water {
-	private readonly spesificHead: number = 4200; //удельная теплоемкость воды при нормальном давлении (Дж)
-	public readonly boildTemp: number = 100; //температура кипения воды (C)
-	private intervalForBoiling: number;
-	private intervalForCooling: number;
-	private intervalForHeating: number;
-	constructor(private volume: number, private temperature: number, private outerTemp: number) {};
-
-	public boild(secForBoild: number, growSpeed: number, callback: Function): void {
-		console.log('Water is heating up');
-		let seconds = 0;
-		this.intervalForBoiling = setInterval(() => {
-			if(seconds >= secForBoild) {
-				clearInterval(this.intervalForBoiling);
-				console.log('Water is boiled');
-				callback();
-				return;
-			}
-			seconds++;
-			this.temperature += growSpeed;
-			console.log('Water temperature ', this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс нагревания
-		}, 300);
-	}
-
-	public coolDown(): void {
-		let speed = 3;
-		console.log('Start to cool down');
-		if(this.intervalForCooling) {
-			clearInterval(this.intervalForCooling);
-		}
-		this.intervalForCooling = setInterval(() => {
-			if(this.temperature <= this.outerTemp) {
-				clearInterval(this.intervalForCooling);
-				return;
-			}
-			this.temperature -= speed;
-			console.log('Water temperature: ', this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс остывания
-		}, 2000);
-	}
-
-	public heatUp(toTemp: number): void {
-		console.log('Heating up');
-		if(this.intervalForHeating) {
-			clearInterval(this.intervalForHeating);
-		}
-		this.intervalForHeating = setInterval(() => {
-			if(this.temperature === toTemp) {
-				clearInterval(this.intervalForHeating);
-			}
-			this.temperature++;
-			console.log('Water temperature ', this.temperature); //закоментировать если не хотим показывать процесс нагревания
-		}, 2000)
-	}
-
-	public addNewWater(newWater: Water): void {
-		this.volume += newWater.volume;
-		this.temperature = Math.round((this.temperature * this.volume + newWater.temperature * newWater.volume) / (this.volume + newWater.volume));
-		if(this.temperature > this.outerTemp && !this.intervalForBoiling) {
-			this.coolDown();
-		} else if(this.temperature < this.outerTemp) {
-			this.heatUp(this.outerTemp);
-		}
-	}
-
-	public changeOuterTemp(to: number): void {
-		this.outerTemp = to;
-	}
-
-	public decreaseVolume(volume: number): void {
-			this.volume -= volume;
-	}
-
-	public getTemperature(): number {
-		return this.temperature;
-	}
-
-	public getVolume(): number {
-		return this.volume;
-	}
-
-	public getspesificHead(): number {
-		return this.spesificHead;
-	}
-
-	public getOuterTemp(): number {
-		return this.outerTemp;
-	}
-
-	public getBoilingInterval(): number {
-		return this.intervalForBoiling;
-	}
-
-	public getCoolingInterval(): number {
-		return this.intervalForCooling;
 	}
 }
 
