@@ -1,3 +1,94 @@
+var Water = /** @class */ (function () {
+    function Water(volume, temperature, outerTemp) {
+        this.volume = volume;
+        this.temperature = temperature;
+        this.outerTemp = outerTemp;
+        this.spesificHead = 4200; //удельная теплоемкость воды при нормальном давлении (Дж)
+        this.boildTemp = 100; //температура кипения воды (C)
+    }
+    ;
+    Water.prototype.boild = function (secForBoild, growSpeed, callback) {
+        var _this = this;
+        console.log('Water is heating up');
+        var seconds = 0;
+        this.intervalForBoiling = setInterval(function () {
+            if (seconds >= secForBoild) {
+                clearInterval(_this.intervalForBoiling);
+                console.log('Water is boiled');
+                callback();
+                return;
+            }
+            seconds++;
+            _this.temperature += growSpeed;
+            console.log('Water temperature: ', _this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс нагревания
+        }, 300);
+    };
+    Water.prototype.coolDown = function () {
+        var _this = this;
+        var speed = 3;
+        console.log('Start to cool down');
+        if (this.intervalForCooling) {
+            clearInterval(this.intervalForCooling);
+        }
+        this.intervalForCooling = setInterval(function () {
+            if (_this.temperature <= _this.outerTemp) {
+                clearInterval(_this.intervalForCooling);
+                return;
+            }
+            _this.temperature -= speed;
+            console.log('Water temperature: ', _this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс остывания
+        }, 600);
+    };
+    Water.prototype.heatUp = function (toTemp) {
+        var _this = this;
+        console.log('Heating up');
+        if (this.intervalForHeating) {
+            clearInterval(this.intervalForHeating);
+        }
+        this.intervalForHeating = setInterval(function () {
+            if (_this.temperature === toTemp) {
+                clearInterval(_this.intervalForHeating);
+            }
+            _this.temperature++;
+            console.log('Water temperature: ', _this.temperature); //закоментировать если не хотим показывать процесс нагревания
+        }, 600);
+    };
+    Water.prototype.addNewWater = function (newWater) {
+        this.volume += newWater.volume;
+        this.temperature = Math.round((this.temperature * this.volume + newWater.temperature * newWater.volume) / (this.volume + newWater.volume));
+        if (this.temperature > this.outerTemp && !this.intervalForBoiling) {
+            this.coolDown();
+        }
+        else if (this.temperature < this.outerTemp) {
+            this.heatUp(this.outerTemp);
+        }
+    };
+    Water.prototype.changeOuterTemp = function (to) {
+        this.outerTemp = to;
+    };
+    Water.prototype.decreaseVolume = function (volume) {
+        this.volume -= volume;
+    };
+    Water.prototype.getTemperature = function () {
+        return this.temperature;
+    };
+    Water.prototype.getVolume = function () {
+        return this.volume;
+    };
+    Water.prototype.getspesificHead = function () {
+        return this.spesificHead;
+    };
+    Water.prototype.getOuterTemp = function () {
+        return this.outerTemp;
+    };
+    Water.prototype.getBoilingInterval = function () {
+        return this.intervalForBoiling;
+    };
+    Water.prototype.getCoolingInterval = function () {
+        return this.intervalForCooling;
+    };
+    return Water;
+}());
 var TeaPot = /** @class */ (function () {
     function TeaPot(power, volume) {
         this.power = power;
@@ -67,97 +158,6 @@ var TeaPot = /** @class */ (function () {
         return false;
     };
     return TeaPot;
-}());
-var Water = /** @class */ (function () {
-    function Water(volume, temperature, outerTemp) {
-        this.volume = volume;
-        this.temperature = temperature;
-        this.outerTemp = outerTemp;
-        this.spesificHead = 4200; //удельная теплоемкость воды при нормальном давлении (Дж)
-        this.boildTemp = 100; //температура кипения воды (C)
-    }
-    ;
-    Water.prototype.boild = function (secForBoild, growSpeed, callback) {
-        var _this = this;
-        console.log('Water is heating up');
-        var seconds = 0;
-        this.intervalForBoiling = setInterval(function () {
-            if (seconds >= secForBoild) {
-                clearInterval(_this.intervalForBoiling);
-                console.log('Water is boiled');
-                callback();
-                return;
-            }
-            seconds++;
-            _this.temperature += growSpeed;
-            console.log('Water temperature ', _this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс нагревания
-        }, 300);
-    };
-    Water.prototype.coolDown = function () {
-        var _this = this;
-        var speed = 3;
-        console.log('Start to cool down');
-        if (this.intervalForCooling) {
-            clearInterval(this.intervalForCooling);
-        }
-        this.intervalForCooling = setInterval(function () {
-            if (_this.temperature <= _this.outerTemp) {
-                clearInterval(_this.intervalForCooling);
-                return;
-            }
-            _this.temperature -= speed;
-            console.log('Water temperature: ', _this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс остывания
-        }, 2000);
-    };
-    Water.prototype.heatUp = function (toTemp) {
-        var _this = this;
-        console.log('Heating up');
-        if (this.intervalForHeating) {
-            clearInterval(this.intervalForHeating);
-        }
-        this.intervalForHeating = setInterval(function () {
-            if (_this.temperature === toTemp) {
-                clearInterval(_this.intervalForHeating);
-            }
-            _this.temperature++;
-            console.log('Water temperature ', _this.temperature); //закоментировать если не хотим показывать процесс нагревания
-        }, 2000);
-    };
-    Water.prototype.addNewWater = function (newWater) {
-        this.volume += newWater.volume;
-        this.temperature = Math.round((this.temperature * this.volume + newWater.temperature * newWater.volume) / (this.volume + newWater.volume));
-        if (this.temperature > this.outerTemp && !this.intervalForBoiling) {
-            this.coolDown();
-        }
-        else if (this.temperature < this.outerTemp) {
-            this.heatUp(this.outerTemp);
-        }
-    };
-    Water.prototype.changeOuterTemp = function (to) {
-        this.outerTemp = to;
-    };
-    Water.prototype.decreaseVolume = function (volume) {
-        this.volume -= volume;
-    };
-    Water.prototype.getTemperature = function () {
-        return this.temperature;
-    };
-    Water.prototype.getVolume = function () {
-        return this.volume;
-    };
-    Water.prototype.getspesificHead = function () {
-        return this.spesificHead;
-    };
-    Water.prototype.getOuterTemp = function () {
-        return this.outerTemp;
-    };
-    Water.prototype.getBoilingInterval = function () {
-        return this.intervalForBoiling;
-    };
-    Water.prototype.getCoolingInterval = function () {
-        return this.intervalForCooling;
-    };
-    return Water;
 }());
 var teaPot = new TeaPot(2400, 1700);
 teaPot.addWater(new Water(400, 25, 25));
