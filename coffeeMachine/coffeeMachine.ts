@@ -6,7 +6,6 @@ abstract class CoffeeIngredients {
 			this.volume -= volume;
 			return volume;
 		}
-		throw new Error('not enought ' + (<any>this).constructor.name);
 	}
 
 	private isEnought(volume: number): boolean {
@@ -36,10 +35,10 @@ class Milk extends CoffeeIngredients {
 		super(volume);
 	}
 
-	add(ingredient: Milk): void {
-		if(ingredient.isNotExpired() && this.isNotExpired()) {
-			super.add(ingredient);
-			this.expirationDate = this.expirationDate < ingredient.expirationDate ? this.expirationDate : ingredient.expirationDate;
+	add(newMilk: Milk): void {
+		if(newMilk.isNotExpired() && this.isNotExpired()) {
+			super.add(newMilk);
+			this.expirationDate = this.expirationDate < newMilk.expirationDate ? newMilk.expirationDate : this.expirationDate;
 		}
 	}
 
@@ -54,23 +53,46 @@ class Milk extends CoffeeIngredients {
 
 class Water extends CoffeeIngredients {
 	private temperature: number = 20;
+	private intervalIdforCooling: number;
+	private intervalIdforHeading: number;
 	constructor(volume: number) { 
 		super(volume);
 	}
 
-	public heatUp(): void {
-		this.temperature = 95;
-		console.log('Water has been heated');
-		this.coolDown();
+	public heatUp(): Promise<void> {
+		clearInterval(this.intervalIdforCooling);
+		clearInterval(this.intervalIdforHeading);
+		return new Promise((resolve, reject) => {
+			console.log('Water start to heat up');
+			this.intervalIdforHeading = setInterval(() => {
+				if(this.temperature >= 92) {
+					console.log('Water has been heated to 92 degrees');
+					clearInterval(this.intervalIdforHeading);
+					resolve();
+					this.coolDown(87);
+					return;
+				}
+				this.temperature++;
+				console.log(this.temperature);
+			}, 100);
+		});
 	}
 
-	private coolDown() {
-		let intervalId = setInterval(() => {
-			if(this.temperature == 20) {
-				clearInterval(intervalId);
-			}
-			this.temperature--;
-		}, 1000)
+	public coolDown(to: number): Promise<void> {
+		clearInterval(this.intervalIdforCooling);
+		return new Promise((resolve, reject) => {
+			console.log('Water start to cool down');
+			this.intervalIdforCooling = setInterval(() => {
+				if(this.temperature == to) {
+					clearInterval(this.intervalIdforCooling);
+					resolve();
+					this.heatUp();
+					return;
+				}
+				this.temperature--;
+				console.log(this.temperature);
+			}, 4000)
+		});
 	}
 }
 
@@ -79,8 +101,13 @@ class CoffeeBeans extends CoffeeIngredients {
 		super(volume);
 	}
 
-	public grind(volume: number): void {
-		console.log(volume + ' gram of coffee has been grind');
+	public grind(volume: number): Promise<void> {
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				console.log(volume + ' gram of coffee has been grind');
+				resolve();
+			}, 1000);
+		});
 	}
 }
 
@@ -89,79 +116,70 @@ interface ICoffee {
 	description: string
 }
 
-class CoffeMachine {
+class CoffeeMachine {
 
 	constructor(
 		private milk: Milk,
 		private coffeeBeans: CoffeeBeans,
 		private water: Water,
 		private maxWaterVolume: number,
-		private maxCoffeeVolume: number,
+		private maxCoffeeBeansVolume: number,
 		private maxMilkVolume: number
 		) {};
 
-	public getLatte(): ICoffee {
+	public getLatte(): void {
 		const waterToCreate: number = 100;
 		const coffeeBeansToCreate: number = 20;
 		const milkToCreate: number = 100;
 		let latte;
 
 		if(this.has(waterToCreate, coffeeBeansToCreate, milkToCreate) === true && this.milk.isNotExpired()) {
-			return latte = this.createCoffee('Latte', waterToCreate, coffeeBeansToCreate, milkToCreate);
+			this.createCoffee('Latte', waterToCreate, coffeeBeansToCreate, milkToCreate);
 		}
 	}
 
-	public getExpresso(): ICoffee {
+	public getExpresso(): void {
 		const waterToCreate: number = 50;
 		const coffeeBeansToCreate: number = 20;
 		let expresso;
 
 		if(this.has(waterToCreate, coffeeBeansToCreate) === true) {
-			return expresso = this.createCoffee('Expresso', waterToCreate, coffeeBeansToCreate);
+			this.createCoffee('Expresso', waterToCreate, coffeeBeansToCreate);
 		}
 	}
 
-	public getCappuchino(): ICoffee {
+	public getCappuchino(): void {
 		const waterToCreate: number = 100;
 		const coffeeBeansToCreate: number = 20;
 		const milkToCreate: number = 50;
 		let cappuchino;
 
 		if(this.has(waterToCreate, coffeeBeansToCreate, milkToCreate) === true && this.milk.isNotExpired()) {
-			return cappuchino = this.createCoffee('Cappuchino', waterToCreate, coffeeBeansToCreate, milkToCreate);
+			this.createCoffee('Cappuchino', waterToCreate, coffeeBeansToCreate, milkToCreate);
 		}
 	}
 
 	public addWater(newWater: Water): void{
-		if(newWater.getVolume() <= this.maxWaterVolume - this.water.getVolume()) {
+		if(this.isEnoughtEmtySpace(newWater)) {
 			this.water.add(newWater);
-		} else {
-			let emptySpace: number = this.maxWaterVolume - this.water.getVolume();
-			throw new Error('You can add not more then ' + emptySpace);
 		}
 	}
 
-	public addCoffeeBeens(newCoffeeBeans: CoffeeBeans): void {
-		if(newCoffeeBeans.getVolume() <= this.maxCoffeeVolume - this.coffeeBeans.getVolume()) {
+	public addCoffeeBeans(newCoffeeBeans: CoffeeBeans): void {
+		if(this.isEnoughtEmtySpace(newCoffeeBeans)) {
 			this.coffeeBeans.add(newCoffeeBeans);
-		} else {
-			let emptySpace: number = this.maxWaterVolume - this.coffeeBeans.getVolume();
-			throw new Error('You can add not more then ' + emptySpace);
 		}
 	}
 
 	public addMilk(newMilk: Milk): void{
-		if(newMilk.getVolume() <= this.maxMilkVolume - this.milk.getVolume()) {
+		if(this.isEnoughtEmtySpace(newMilk)) {
 			this.milk.add(newMilk);
-		} else {
-			let emptySpace: number = this.maxWaterVolume - this.milk.getVolume();
-			throw new Error('You can add not more then ' + emptySpace);
 		}
 	}
 
 //#############################
 
-	private createCoffee(name: string, waterVolume: number, coffeeBeansWeight: number, milkVolume?: number): ICoffee {
+	private createCoffee(name: string, waterVolume: number, coffeeBeansWeight: number, milkVolume?: number): void {
 		const waterToMake = this.water.get(waterVolume);
 		const coffeeBeansToMake = this.coffeeBeans.get(coffeeBeansWeight);
 		let makeMilk;
@@ -170,13 +188,14 @@ class CoffeMachine {
 			this.milk.get(milkVolume);
 		}
 
-		this.coffeeBeans.grind(coffeeBeansToMake);
-		this.water.heatUp();
 
-		return {
-			name: name,
-			description: 'Created'
-		}
+		this.coffeeBeans.grind(coffeeBeansToMake)
+			.then(() => {
+				return this.water.heatUp()
+			})
+			.then(() => {
+				console.log({name: name, description: 'Created'});
+			});
 	}
 
 	private has(waterVolume: number, coffeeBeansWeight: number, milkVolume?: number): boolean {
@@ -194,9 +213,34 @@ class CoffeMachine {
 
 		return true;
 	}
+
+	private isEnoughtEmtySpace(forIngredient: CoffeeIngredients): boolean {
+		let emptySpace;
+		switch((<any>forIngredient).constructor.name) {
+			case 'Water':
+				emptySpace = this.maxWaterVolume - this.water.getVolume();
+				break;
+			case 'CoffeeBeans':
+				emptySpace = this.maxCoffeeBeansVolume - this.coffeeBeans.getVolume();
+				break;
+			case 'Milk':
+				emptySpace = this.maxMilkVolume - this.milk.getVolume();
+				break;
+		}
+
+		if(forIngredient.getVolume() <= emptySpace) {
+			return true;
+		} else {
+			throw new Error('You can add not more then ' + emptySpace);
+			return false;
+		}
+	}
 }
 
+const cm: CoffeeMachine = new CoffeeMachine(
+	new Milk(100, new Date(2019, 2, 3, 23, 59, 59)),
+	new CoffeeBeans(100),
+	new Water(300),
+	1000, 400, 1000);
 
-const coffeeMachine = new CoffeMachine(new Milk(100, new Date(2019, 2, 3)), new CoffeeBeans(100), new Water(300), 1000, 400, 1000);
-console.log(coffeeMachine.getLatte());
-console.log(coffeeMachine);
+window['_'] = cm;

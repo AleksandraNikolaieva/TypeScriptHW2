@@ -27,29 +27,44 @@ addWater.addEventListener('click', () => {
 	let temp = +temperatures[0].value;
 	volumes[0].value = '';
 	temperatures[0].value = '';
-	let water = new Water(vol, temp);
-	kettle.addWater(water);
-
+	if(!isNaN(vol) && vol > 0 && !isNaN(temp) && temp > 0 && temp < 100) {
+		let water = new Water(vol, temp);
+		kettle.addWater(water);
+	} else {
+		throw new Error('Invalid data');
+	}
 })
 
 pourOut.addEventListener('click', () => {
 	let vol = +volumes[1].value;
 	volumes[1].value = '';
-	kettle.pourOutWater(vol);
+	if(!isNaN(vol)) {
+		kettle.pourOutWater(vol);
+	} else {
+		throw new Error('Invalid data');
+	}
 })
 
 getWater.addEventListener('click', () => {
 	var vol = +volumes[2].value;
 	volumes[2].value = '';
-	var cup = kettle.getWater(vol);
-	volumes[2].value = '';
-	createdCups.push(cup);
-	console.log(cup);
+	if(!isNaN(vol)) {
+		var cup = kettle.getWater(vol);
+		createdCups.push(cup);
+		console.log(cup);
+	} else {
+		throw new Error('Invalid data');
+	}
 })
 
 changeAmbientTemp.addEventListener('click', () => {
 	var temp = +document.getElementById('temperature').value;
-	kettle.changeOutTemp(temp, );
+	document.getElementById('temperature').value = '';
+	if(!isNaN(temp) && temp > 0 && temp < 100) {
+		kettle.changeAmbientTemp(temp);
+	} else {
+		throw new Error('Invalid data');
+	}
 })
 
 showAllCups.addEventListener('click', () => {

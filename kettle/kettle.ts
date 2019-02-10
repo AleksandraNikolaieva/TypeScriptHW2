@@ -14,7 +14,7 @@ class Water {
 		console.log('Start boiling');
 		let seconds = 0;
 		this.intervalForBoiling = setInterval(() => {
-			if(seconds >= timeForBoil) {
+			if(seconds >= timeForBoil && this.temperature >= boildTemp) {
 				this.stopBoild();
 				console.log('Water is boiled');
 				if(callback) {
@@ -29,9 +29,11 @@ class Water {
 	}
 
 	public coolDown(to: number, speed: number): void {
-		if(this.intervalForBoiling || this.intervalForHeating) {
+		if(this.intervalForBoiling) {
 			return;
 		}
+		this.stopCoolDown();
+		this.stopHeatUp();
 		console.log('Start to cool down to ' + to);
 		this.intervalForCooling = setInterval(() => {
 			if(this.temperature <= to) {
@@ -45,17 +47,19 @@ class Water {
 		}, 600);
 	}
 
-	public heatUp(toTemp: number): void {
+	public heatUp(toTemp: number, speed: number): void {
 		if(this.intervalForBoiling) {
 			return;
 		}
-		console.log('Heating up to ' + toTemp);
+		this.stopHeatUp();
+		this.stopCoolDown();
+		console.log('Start to heating up to ' + toTemp);
 		this.intervalForHeating = setInterval(() => {
 			if(this.temperature === toTemp) {
 				this.stopHeatUp();
 	 			return;
 			}
-			this.temperature++;
+			this.temperature += speed;
 			console.log('Water temperature: ', this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс нагревания
 		}, 600)
 	}
@@ -115,7 +119,7 @@ class Kettle {
 			if(this.water.getTemperature() > this.ambientTemp) {
 				this.water.coolDown(this.ambientTemp, 1);
 			} else if(this.water.getTemperature() < this.ambientTemp) {
-				this.water.heatUp(this.ambientTemp);
+				this.water.heatUp(this.ambientTemp, 1);
 			}
 		}
 	}
@@ -154,7 +158,13 @@ class Kettle {
 
 	public changeAmbientTemp(to: number): void {
 		this.ambientTemp = to;
-		this.water.coolDown(to, 1);
+		if(this.water.getVolume() != 0) {
+			if(this.ambientTemp < this.water.getTemperature()) {
+			this.water.coolDown(to, 1);
+		} else if(this.ambientTemp > this.water.getTemperature()) {
+			this.water.heatUp(to, 1);
+		}
+		}
 	}
 
 	private isExistEmptySpace(volume: number) {

@@ -15,7 +15,7 @@ var Water = /** @class */ (function () {
         console.log('Start boiling');
         var seconds = 0;
         this.intervalForBoiling = setInterval(function () {
-            if (seconds >= timeForBoil) {
+            if (seconds >= timeForBoil && _this.temperature >= boildTemp) {
                 _this.stopBoild();
                 console.log('Water is boiled');
                 if (callback) {
@@ -30,9 +30,11 @@ var Water = /** @class */ (function () {
     };
     Water.prototype.coolDown = function (to, speed) {
         var _this = this;
-        if (this.intervalForBoiling || this.intervalForHeating) {
+        if (this.intervalForBoiling) {
             return;
         }
+        this.stopCoolDown();
+        this.stopHeatUp();
         console.log('Start to cool down to ' + to);
         this.intervalForCooling = setInterval(function () {
             if (_this.temperature <= to) {
@@ -45,18 +47,20 @@ var Water = /** @class */ (function () {
             console.log('Water temperature: ', _this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс остывания
         }, 600);
     };
-    Water.prototype.heatUp = function (toTemp) {
+    Water.prototype.heatUp = function (toTemp, speed) {
         var _this = this;
         if (this.intervalForBoiling) {
             return;
         }
-        console.log('Heating up to ' + toTemp);
+        this.stopHeatUp();
+        this.stopCoolDown();
+        console.log('Start to heating up to ' + toTemp);
         this.intervalForHeating = setInterval(function () {
             if (_this.temperature === toTemp) {
                 _this.stopHeatUp();
                 return;
             }
-            _this.temperature++;
+            _this.temperature += speed;
             console.log('Water temperature: ', _this.temperature.toFixed(2)); //закоментировать если не хотим показывать процесс нагревания
         }, 600);
     };
@@ -114,7 +118,7 @@ var Kettle = /** @class */ (function () {
                 this.water.coolDown(this.ambientTemp, 1);
             }
             else if (this.water.getTemperature() < this.ambientTemp) {
-                this.water.heatUp(this.ambientTemp);
+                this.water.heatUp(this.ambientTemp, 1);
             }
         }
     };
@@ -151,7 +155,14 @@ var Kettle = /** @class */ (function () {
     };
     Kettle.prototype.changeAmbientTemp = function (to) {
         this.ambientTemp = to;
-        this.water.coolDown(to, 1);
+        if (this.water.getVolume() != 0) {
+            if (this.ambientTemp < this.water.getTemperature()) {
+                this.water.coolDown(to, 1);
+            }
+            else if (this.ambientTemp > this.water.getTemperature()) {
+                this.water.heatUp(to, 1);
+            }
+        }
     };
     Kettle.prototype.isExistEmptySpace = function (volume) {
         if (this.volume - this.water.getVolume() >= volume) {

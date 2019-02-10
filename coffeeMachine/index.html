@@ -1,10 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>Coffee Machine</title>
+	<style type="text/css">
+		div, input, button {
+			margin: 10px;
+		}
+	</style>
 	<script type="text/javascript" src='coffeeMachine.js'></script>
 </head>
 <body>
+	<button>Get Latte</button>
+	<button>Get Cappuchino</button>
+	<button>Get Expresso</button>
+	<div>
+		<input type="text" name="">
+		<input type="date" name="" placeholder="01.03.2019">
+		<button>Add milk</button>
+	</div>
+	<div>
+		<input type="text" name="">
+		<button>Add water</button>
+	</div>
+	<div>
+		<input type="text" name="">
+		<button>Add coffe beans</button>
+	</div>
+	<script type="text/javascript">
+		var buttons = document.getElementsByTagName('button');
+		var inputs = document.getElementsByTagName('input');
 
+		let getLatte = buttons[0];
+		let getCappuch = buttons[1];
+		let getExpresso = buttons[2];
+		let addMilk = buttons[3];
+		let addWater = buttons[4];
+		let addCoffeeB = buttons[5];
+
+		getLatte.addEventListener('click', () => {
+			cm.getLatte();
+		})
+
+		getCappuch.addEventListener('click', () => {
+			cm.getCappuchino();
+		})
+
+		getExpresso.addEventListener('click', () => {
+			cm.getExpresso();
+		})
+
+		addMilk.addEventListener('click', () => {
+			let vol = +inputs[0].value;
+			inputs[0].value = '';
+			if(inputs[1].value.length === 10) {
+				var arr = inputs[1].value.split('-');
+				inputs[1].value = '';
+				let expDate = new Date(+arr[0], +arr[1] - 1, +arr[2], 23, 59, 59, 59);
+				cm.addMilk(new Milk(vol, expDate));
+			} else {
+				throw new Error('Invalid data');
+			}
+		})
+
+		addWater.addEventListener('click', () => {
+			let vol = +inputs[2].value;
+			inputs[2].value = '';
+			if(!isNaN(vol) && vol > 0) {
+				cm.addWater(new Water(vol));
+			} else {
+				throw new Error('Invalid data');
+			}
+		})
+
+		addCoffeeB.addEventListener('click', () => {
+			let vol = +inputs[3].value;
+			inputs[3].value = '';
+			if(!isNaN(vol) && vol > 0) {
+				cm.addCoffeeBeans(new CoffeeBeans(vol));
+			} else {
+				throw new Error('Invalid data');
+			}
+		})
+	</script>
 </body>
 </html>
