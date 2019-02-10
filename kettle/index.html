@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TeaPot</title>
+	<style type="text/css">
+		body{
+			display: flex;
+			justify-content: center;
+		}
+
+		div{
+			margin: 10px 10px;
+		}
+
+		button {
+			margin: 10px 10px;
+			width: 160px;
+		}
+
+		input {
+			width: 50px;
+			margin: 10px 0px;
+		}
+	</style>
+</head>
+<body>
+	<button>Turn on</button>
+	<button>Turn off</button>
+	<div>
+		<label>Water volume: <input class='waterVolume'></label><br>
+		<label>Water temperature: <input class='waterTemperature'></label><br>
+		<button>Add water</button>
+	</div>
+	<div>
+		<label>Water volume: <input class='waterVolume'></label><br>
+		<button>Pour out water</button>
+	</div>
+	<div>
+		<label>Water volume: <input class='waterVolume'></label><br>
+		<button>Get water</button>
+	</div>
+	<div>
+		<label>New temperature: <input id='temperature'></label><br>
+		<button>Change ambient temperature</button>
+	</div>
+	<button>Show all taken water</button>
+	<script type="text/javascript" src="kettle.js"></script>
+	<script type="text/javascript" src='index.js'></script>
+</body>
+</html>
