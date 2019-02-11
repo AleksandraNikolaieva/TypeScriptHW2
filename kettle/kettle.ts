@@ -4,19 +4,19 @@ class Water {
 	private intervalForHeating: number;
 	constructor(private volume: number, private temperature: number) {};
 
-	public boild(heaterPower: number, callback?: Function): void {
+	public boil(heaterPower: number, callback?: Function): void {
 		this.stopHeatUp();
 		this.stopCoolDown();
 		let spesificHead = 4200;
 		let boildTemp = 100;
 		let timeForBoil: number = Math.round(spesificHead * this.volume / 1000 * (boildTemp - this.temperature) / heaterPower); //sec
 		let speed: number = (boildTemp - this.temperature) / timeForBoil;
-		console.log('Start boiling');
+		console.log('Start boil');
 		let seconds = 0;
 		this.intervalForBoiling = setInterval(() => {
 			if(seconds >= timeForBoil && this.temperature >= boildTemp) {
 				this.stopBoild();
-				console.log('Water is boiled');
+				console.log('Water has been boiled');
 				if(callback) {
 					callback();
 				}
@@ -32,9 +32,9 @@ class Water {
 		if(this.intervalForBoiling) {
 			return;
 		}
-		this.stopCoolDown();
 		this.stopHeatUp();
-		console.log('Start to cool down to ' + to);
+		if(!this.intervalForCooling) console.log('water start to cool down to ' + to);
+		this.stopCoolDown();
 		this.intervalForCooling = setInterval(() => {
 			if(this.temperature <= to) {
 				this.temperature = to;
@@ -53,7 +53,7 @@ class Water {
 		}
 		this.stopHeatUp();
 		this.stopCoolDown();
-		console.log('Start to heating up to ' + toTemp);
+		if(!this.intervalForHeating) console.log('Start to heat up to ' + toTemp);
 		this.intervalForHeating = setInterval(() => {
 			if(this.temperature === toTemp) {
 				this.stopHeatUp();
@@ -127,7 +127,7 @@ class Kettle {
 	public turnOn(): void {
 		if(this.water.getVolume() != 0 && this.isTurned == false) {
 			this.isTurned = true;
-			this.water.boild(this.power, this.turnOff.bind(this));
+			this.water.boil(this.power, this.turnOff.bind(this));
 		} else {
 			if(this.water.getVolume() === 0) {
 				throw new Error('Kettle is empty');

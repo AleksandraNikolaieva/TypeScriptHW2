@@ -4,7 +4,7 @@ var Water = /** @class */ (function () {
         this.temperature = temperature;
     }
     ;
-    Water.prototype.boild = function (heaterPower, callback) {
+    Water.prototype.boil = function (heaterPower, callback) {
         var _this = this;
         this.stopHeatUp();
         this.stopCoolDown();
@@ -12,12 +12,12 @@ var Water = /** @class */ (function () {
         var boildTemp = 100;
         var timeForBoil = Math.round(spesificHead * this.volume / 1000 * (boildTemp - this.temperature) / heaterPower); //sec
         var speed = (boildTemp - this.temperature) / timeForBoil;
-        console.log('Start boiling');
+        console.log('Start boil');
         var seconds = 0;
         this.intervalForBoiling = setInterval(function () {
             if (seconds >= timeForBoil && _this.temperature >= boildTemp) {
                 _this.stopBoild();
-                console.log('Water is boiled');
+                console.log('Water has been boiled');
                 if (callback) {
                     callback();
                 }
@@ -33,9 +33,10 @@ var Water = /** @class */ (function () {
         if (this.intervalForBoiling) {
             return;
         }
-        this.stopCoolDown();
         this.stopHeatUp();
-        console.log('Start to cool down to ' + to);
+        if (!this.intervalForCooling)
+            console.log('water start to cool down to ' + to);
+        this.stopCoolDown();
         this.intervalForCooling = setInterval(function () {
             if (_this.temperature <= to) {
                 _this.temperature = to;
@@ -54,7 +55,8 @@ var Water = /** @class */ (function () {
         }
         this.stopHeatUp();
         this.stopCoolDown();
-        console.log('Start to heating up to ' + toTemp);
+        if (!this.intervalForHeating)
+            console.log('Start to heat up to ' + toTemp);
         this.intervalForHeating = setInterval(function () {
             if (_this.temperature === toTemp) {
                 _this.stopHeatUp();
@@ -125,7 +127,7 @@ var Kettle = /** @class */ (function () {
     Kettle.prototype.turnOn = function () {
         if (this.water.getVolume() != 0 && this.isTurned == false) {
             this.isTurned = true;
-            this.water.boild(this.power, this.turnOff.bind(this));
+            this.water.boil(this.power, this.turnOff.bind(this));
         }
         else {
             if (this.water.getVolume() === 0) {
