@@ -35,7 +35,7 @@ var Water = /** @class */ (function () {
         }
         this.stopHeatUp();
         if (!this.intervalForCooling)
-            console.log('water start to cool down to ' + to);
+            console.log('Water start to cool down to ' + to);
         this.stopCoolDown();
         this.intervalForCooling = setInterval(function () {
             if (_this.temperature <= to) {
@@ -84,6 +84,12 @@ var Water = /** @class */ (function () {
     Water.prototype.getVolume = function () {
         return this.volume;
     };
+    Water.prototype.stopBoild = function () {
+        if (this.intervalForBoiling) {
+            clearInterval(this.intervalForBoiling);
+            this.intervalForBoiling = undefined;
+        }
+    };
     Water.prototype.stopCoolDown = function () {
         if (this.intervalForCooling) {
             clearInterval(this.intervalForCooling);
@@ -94,12 +100,6 @@ var Water = /** @class */ (function () {
         if (this.intervalForHeating) {
             clearInterval(this.intervalForHeating);
             this.intervalForHeating = undefined;
-        }
-    };
-    Water.prototype.stopBoild = function () {
-        if (this.intervalForBoiling) {
-            clearInterval(this.intervalForBoiling);
-            this.intervalForBoiling = undefined;
         }
     };
     return Water;

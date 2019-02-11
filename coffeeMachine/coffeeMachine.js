@@ -9,6 +9,15 @@ class CoffeeIngredients {
             return volume;
         }
     }
+    isExist(volume) {
+        return this.isEnought(volume);
+    }
+    add(ingredient) {
+        this.volume += ingredient.volume;
+    }
+    getVolume() {
+        return this.volume;
+    }
     isEnought(volume) {
         if (this.volume >= volume || volume === undefined) {
             return true;
@@ -17,15 +26,6 @@ class CoffeeIngredients {
             throw new Error('not enought ' + this.constructor.name);
             return false;
         }
-    }
-    isExist(volume) {
-        return this.isEnought(volume);
-    }
-    getVolume() {
-        return this.volume;
-    }
-    add(ingredient) {
-        this.volume += ingredient.volume;
     }
 }
 class Milk extends CoffeeIngredients {
@@ -55,14 +55,16 @@ class Water extends CoffeeIngredients {
     heatUp() {
         clearInterval(this.intervalIdforCooling);
         clearInterval(this.intervalIdforHeading);
+        const maxTemp = 92;
+        const minTemp = 87;
         return new Promise((resolve, reject) => {
             console.log('Water start to heat up');
             this.intervalIdforHeading = setInterval(() => {
-                if (this.temperature >= 92) {
+                if (this.temperature >= maxTemp) {
                     console.log('Water has been heated to 92 degrees');
                     clearInterval(this.intervalIdforHeading);
                     resolve();
-                    this.coolDown(87);
+                    this.coolDown(minTemp);
                     return;
                 }
                 this.temperature++;
@@ -114,7 +116,7 @@ class CoffeeMachine {
         const waterToCreate = 100;
         const coffeeBeansToCreate = 20;
         const milkToCreate = 100;
-        let latte;
+        //let latte;
         if (this.has(waterToCreate, coffeeBeansToCreate, milkToCreate) === true && this.milk.isNotExpired()) {
             this.createCoffee('Latte', waterToCreate, coffeeBeansToCreate, milkToCreate);
         }
@@ -122,7 +124,7 @@ class CoffeeMachine {
     getExpresso() {
         const waterToCreate = 50;
         const coffeeBeansToCreate = 20;
-        let expresso;
+        //let expresso;
         if (this.has(waterToCreate, coffeeBeansToCreate) === true) {
             this.createCoffee('Expresso', waterToCreate, coffeeBeansToCreate);
         }
@@ -131,7 +133,7 @@ class CoffeeMachine {
         const waterToCreate = 100;
         const coffeeBeansToCreate = 20;
         const milkToCreate = 50;
-        let cappuchino;
+        //let cappuchino;
         if (this.has(waterToCreate, coffeeBeansToCreate, milkToCreate) === true && this.milk.isNotExpired()) {
             this.createCoffee('Cappuchino', waterToCreate, coffeeBeansToCreate, milkToCreate);
         }

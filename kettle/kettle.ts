@@ -7,8 +7,8 @@ class Water {
 	public boil(heaterPower: number, callback?: Function): void {
 		this.stopHeatUp();
 		this.stopCoolDown();
-		let spesificHead = 4200;
-		let boildTemp = 100;
+		const spesificHead = 4200;
+		const boildTemp = 100;
 		let timeForBoil: number = Math.round(spesificHead * this.volume / 1000 * (boildTemp - this.temperature) / heaterPower); //sec
 		let speed: number = (boildTemp - this.temperature) / timeForBoil;
 		console.log('Start boil');
@@ -33,7 +33,7 @@ class Water {
 			return;
 		}
 		this.stopHeatUp();
-		if(!this.intervalForCooling) console.log('water start to cool down to ' + to);
+		if(!this.intervalForCooling) console.log('Water start to cool down to ' + to);
 		this.stopCoolDown();
 		this.intervalForCooling = setInterval(() => {
 			if(this.temperature <= to) {
@@ -85,26 +85,27 @@ class Water {
 		return this.volume;
 	}
 
-	public stopCoolDown() {
-		if(this.intervalForCooling) {
-			clearInterval(this.intervalForCooling);
-			this.intervalForCooling = undefined;
-		}
-	}
-
-	public stopHeatUp() {
-		if(this.intervalForHeating) {
-			clearInterval(this.intervalForHeating);
-			this.intervalForHeating = undefined;
-		}
-	}
-
 	public stopBoild() {
 		if(this.intervalForBoiling) {
 			clearInterval(this.intervalForBoiling);
 			this.intervalForBoiling = undefined;
 		}
 	}
+
+	private stopCoolDown() {
+		if(this.intervalForCooling) {
+			clearInterval(this.intervalForCooling);
+			this.intervalForCooling = undefined;
+		}
+	}
+
+	private stopHeatUp() {
+		if(this.intervalForHeating) {
+			clearInterval(this.intervalForHeating);
+			this.intervalForHeating = undefined;
+		}
+	}
+
 }
 
 class Kettle {
@@ -160,10 +161,10 @@ class Kettle {
 		this.ambientTemp = to;
 		if(this.water.getVolume() != 0) {
 			if(this.ambientTemp < this.water.getTemperature()) {
-			this.water.coolDown(to, 1);
-		} else if(this.ambientTemp > this.water.getTemperature()) {
-			this.water.heatUp(to, 1);
-		}
+				this.water.coolDown(to, 1);
+			} else if(this.ambientTemp > this.water.getTemperature()) {
+				this.water.heatUp(to, 1);
+			}
 		}
 	}
 
