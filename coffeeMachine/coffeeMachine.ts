@@ -104,7 +104,7 @@ class CoffeeBeans extends CoffeeIngredients {
 	public grind(volume: number): Promise<void> {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
-				console.log(volume + ' gram of coffee has been grind');
+				console.log(volume + ' gram of coffee has been ground');
 				resolve();
 			}, 1000);
 		});
